@@ -2,12 +2,9 @@ import requests
 import finviz
 from bs4 import BeautifulSoup
 import time
+import datetime
 import re
 import csv
-
-# current_page = "https://finviz.com/screener.ashx"
-# next_page = "https://finviz.com/screener.ashx?v=111&r="
-# next_pagination = 21
 
 def normalize_value(field):
     if bool(re.search('^-$', field)):
@@ -49,7 +46,9 @@ def normalize(d):
 
 stock_list = finviz.Screener(filters=[]).data
 
-with open('test.csv', 'w') as file:
+filename = "stock-metrics-" + datetime.datetime.today().strftime('%Y-%m-%d') + ".csv"
+
+with open(filename, 'w') as file:
     headers = normalize(finviz.get_stock(stock_list[0]["Ticker"]))
     headers["ticker"] = stock_list[0]["Ticker"]
     headers["company"] = stock_list[0]["Company"]
