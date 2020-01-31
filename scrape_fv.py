@@ -5,6 +5,28 @@ import time
 import datetime
 import re
 import csv
+import math
+
+market_holidays = [datetime.datetime.strptime(i, "%Y-%m-%d").date() for i in [
+	"2020-01-01",
+	"2020-01-20",
+	"2020-02-17",
+	"2020-04-10",
+	"2020-05-25",
+	"2020-07-03",
+	"2020-09-07",
+	"2020-11-26",
+	"2020-12-25",
+	"2021-01-01",
+]]
+
+todays_date = datetime.datetime.today().date()
+
+a_holiday = todays_date in market_holidays
+a_weekend = todays_date.weekday() > 4
+
+if a_holiday or a_weekend:
+	exit()
 
 def normalize_value(field):
     if bool(re.search('^-$', field)):
