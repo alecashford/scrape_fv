@@ -25,8 +25,8 @@ todays_date = datetime.datetime.today().date()
 a_holiday = todays_date in market_holidays
 a_weekend = todays_date.weekday() > 4
 
-# if a_holiday or a_weekend:
-# 	exit()
+if a_holiday or a_weekend:
+	exit()
 
 for i in range(0, 5):
     try:
