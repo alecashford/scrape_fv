@@ -25,8 +25,15 @@ todays_date = datetime.datetime.today().date()
 a_holiday = todays_date in market_holidays
 a_weekend = todays_date.weekday() > 4
 
-if a_holiday or a_weekend:
-	exit()
+# if a_holiday or a_weekend:
+# 	exit()
+
+for i in range(0, 5):
+    try:
+        stock_list = finviz.Screener(filters=[]).data
+        break
+    except:
+        time.sleep(5)
 
 def normalize_value(field):
     if bool(re.search('^-$', field)):
@@ -66,7 +73,17 @@ def normalize_key(label):
 def normalize(d):
     return {normalize_key(k): normalize_value(v) for (k, v) in d.items()}
 
-stock_list = finviz.Screener(filters=[]).data
+tomorrow = datetime.datetime.now() + datetime.timedelta(days=1)
+market_open = tomorrow.replace(hour=6, minute=0, second=0, microsecond=0)
+
+def sleepx(remaining):
+    right_now = datetime.datetime.now()
+    time_delta = (market_open - right_now).total_seconds()
+    exact_wait = time_delta / remaining
+    time_to_sleep = math.floor(exact_wait) if math.floor(exact_wait) > 1 else exact_wait
+    print(f'Sleeping {time_to_sleep} seconds')
+    time.sleep(time_to_sleep)
+
 
 filename = "stock-metrics-" + datetime.datetime.today().strftime('%Y-%m-%d') + ".csv"
 
@@ -79,13 +96,18 @@ with open(filename, 'w') as file:
     headers["country"] = stock_list[0]["Country"]
     writer = csv.DictWriter(file, headers.keys())
     writer.writeheader()
-    for stock in stock_list:
-        metrics = normalize(finviz.get_stock(stock["Ticker"]))
-        metrics["ticker"] = stock["Ticker"]
-        metrics["company"] = stock["Company"]
-        metrics["sector"] = stock["Sector"]
-        metrics["industry"] = stock["Industry"]
-        metrics["country"] = stock["Country"]
-        writer.writerow(metrics)
-        print(stock["Ticker"])
-        time.sleep(2)
+    for idx, stock in enumerate(stock_list):
+        for i in range(0, 3):
+            try:
+                metrics = normalize(finviz.get_stock(stock["Ticker"]))
+                metrics["ticker"] = stock["Ticker"]
+                metrics["company"] = stock["Company"]
+                metrics["sector"] = stock["Sector"]
+                metrics["industry"] = stock["Industry"]
+                metrics["country"] = stock["Country"]
+                writer.writerow(metrics)
+                print(stock["Ticker"])
+                sleepx(len(stock_list) - idx + 1)
+                break
+            except:
+                sleepx(len(stock_list) - idx + 1)
